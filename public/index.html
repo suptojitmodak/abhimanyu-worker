@@ -57,6 +57,7 @@ h1{margin:0;font-size:20px;line-height:1.25;font-weight:600}
     <div class="row"><span class="label">ভার্সন</span><span class="val">1.0.0</span></div>
     <div class="row"><span class="label">অ্যাপের সাইজ</span><span class="val" id="size">__SIZE__</span></div>
     <div class="row"><span class="label">মোট ডাউনলোড</span><span class="val num" id="count">__COUNT__</span></div>
+    <div class="row"><span class="label">মোট ভিজিটর</span><span class="val" id="visitors">__VISITORS__</span></div>
   </div>
 
   <div class="cta"><a class="btn" id="dl" href="/download" download rel="nofollow">ডাউনলোড করুন</a></div>
@@ -84,6 +85,6 @@ h1{margin:0;font-size:20px;line-height:1.25;font-weight:600}
     </div>
   </section>
 </main>
-<script>(function(){var c=document.getElementById("count"),s=document.getElementById("size"),b=document.getElementById("dl"),n=new Intl.NumberFormat("en-US"),m=new Intl.NumberFormat("en-US",{maximumFractionDigits:1});function load(){fetch("/count",{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(d){if(!d)return;if(Number.isSafeInteger(d.count)&&d.count>=0)c.textContent=n.format(d.count);if(Number.isFinite(d.size)&&d.size>0)s.textContent=m.format(d.size/1048576)+" MB"}).catch(function(){})}if(c.textContent==="\u2014"||s.textContent==="\u2014")load();setInterval(function(){if(!document.hidden)load()},20000);b.addEventListener("click",function(){setTimeout(load,12000)})})();</script>
+<script>(function(){var c=document.getElementById("count"),v=document.getElementById("visitors"),s=document.getElementById("size"),b=document.getElementById("dl"),n=new Intl.NumberFormat("en-US"),m=new Intl.NumberFormat("en-US",{maximumFractionDigits:1});function load(){fetch("/count",{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(d){if(!d)return;if(Number.isSafeInteger(d.count)&&d.count>=0)c.textContent=n.format(d.count);if(Number.isSafeInteger(d.visitors)&&d.visitors>=0)v.textContent=n.format(d.visitors);if(Number.isFinite(d.size)&&d.size>0)s.textContent=m.format(d.size/1048576)+" MB"}).catch(function(){})}if(c.textContent==="\u2014"||s.textContent==="\u2014"||v.textContent==="\u2014")load();setInterval(function(){if(!document.hidden)load()},20000);b.addEventListener("click",function(){setTimeout(load,12000)})})();</script>
 </body>
 </html>

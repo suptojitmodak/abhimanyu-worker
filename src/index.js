@@ -3,6 +3,8 @@ import { DurableObject } from "cloudflare:workers";
 // ---- সেটিংস ----
 const APK_PATH = "/files/abhimanyu.apk"; // public/files/ ফোল্ডারে APK রাখুন
 const APK_NAME = "Abhimanyu.apk";
+const MAX_NEW_VISITS_PER_IP_PER_DAY = 30; // একই আইপি থেকে দিনে সর্বোচ্চ কত নতুন ভিজিটর গোনা হবে
+const VID_RE = /(?:^|;\s*)vid=([0-9a-f-]{36})(?:;|$)/;
 const MAX_NEW_PER_IP_PER_DAY = 10; // একই আইপি থেকে দিনে সর্বোচ্চ কত নতুন ডাউনলোড গোনা হবে
 const BOT_RE = /bot|crawl|spider|slurp|preview|facebookexternalhit|whatsapp|telegram|curl|wget|python|httpclient/i;
 
@@ -24,6 +26,8 @@ export class Counter extends DurableObject {
     this.sql = ctx.storage.sql;
     this.sql.exec("CREATE TABLE IF NOT EXISTS visitors (vid TEXT PRIMARY KEY, ip TEXT NOT NULL, ts INTEGER NOT NULL)");
     this.sql.exec("CREATE INDEX IF NOT EXISTS idx_ip_ts ON visitors (ip, ts)");
+    this.sql.exec("CREATE TABLE IF NOT EXISTS visits (vid TEXT PRIMARY KEY, ip TEXT NOT NULL, ts INTEGER NOT NULL)");
+    this.sql.exec("CREATE INDEX IF NOT EXISTS idx_visit_ip_ts ON visits (ip, ts)");
   }
   claim(vid, ip) {
     if (this.sql.exec("SELECT 1 FROM visitors WHERE vid = ?", vid).toArray().length) return false;
@@ -32,6 +36,20 @@ export class Counter extends DurableObject {
     if (recent >= MAX_NEW_PER_IP_PER_DAY) return false;
     this.sql.exec("INSERT INTO visitors (vid, ip, ts) VALUES (?, ?, ?)", vid, ip, Date.now());
     return true;
+  }
+  visit(vid, ip) {
+    if (this.sql.exec("SELECT 1 FROM visits WHERE vid = ?", vid).toArray().length) return false;
+    const since = Date.now() - 86400000;
+    const recent = this.sql.exec("SELECT COUNT(*) AS c FROM visits WHERE ip = ? AND ts > ?", ip, since).one().c;
+    if (recent >= MAX_NEW_VISITS_PER_IP_PER_DAY) return false;
+    this.sql.exec("INSERT INTO visits (vid, ip, ts) VALUES (?, ?, ?)", vid, ip, Date.now());
+    return true;
+  }
+  totals() {
+    return {
+      downloads: this.sql.exec("SELECT COUNT(*) AS c FROM visitors").one().c,
+      visitors: this.sql.exec("SELECT COUNT(*) AS c FROM visits").one().c,
+    };
   }
   total() {
     return this.sql.exec("SELECT COUNT(*) AS c FROM visitors").one().c;
@@ -72,7 +90,7 @@ async function handleDownload(req, env, ctx, url) {
   headers.set("X-Robots-Tag", "noindex");
 
   // কাউন্ট: শুধু GET, বট নয়, ফাইল সত্যিই আছে
-  const cookie = /(?:^|;\s*)vid=([0-9a-f-]{36})(?:;|$)/.exec(req.headers.get("Cookie") || "");
+  const cookie = VID_RE.exec(req.headers.get("Cookie") || "");
   const vid = cookie ? cookie[1] : crypto.randomUUID();
   if (!cookie) headers.append("Set-Cookie", `vid=${vid}; Max-Age=31536000; Path=/; Secure; HttpOnly; SameSite=Lax`);
   if (req.method === "GET" && !BOT_RE.test(req.headers.get("User-Agent") || "")) {
@@ -112,7 +130,7 @@ const SIZE_MS = 600000;
 
 async function refreshStats(env, url) {
   try {
-    const count = await counter(env).total();
+    const t = await counter(env).totals();
     if (!mem.size || Date.now() - mem.sizeTs > SIZE_MS) {
       const size = await apkSize(env, url);
       if (size) {
@@ -120,7 +138,7 @@ async function refreshStats(env, url) {
         mem.sizeTs = Date.now();
       }
     }
-    mem.stats = { count, size: mem.size };
+    mem.stats = { count: t.downloads, visitors: t.visitors, size: mem.size };
     mem.ts = Date.now();
   } catch {}
   return mem.stats;
@@ -158,8 +176,9 @@ async function handleHome(req, env, ctx, url) {
   let html = await asset.text();
   const stats = peekStats(env, ctx, url);
   const count = stats ? numFmt.format(stats.count) : "—";
+  const visitors = stats ? numFmt.format(stats.visitors) : "—";
   const size = stats && stats.size ? mbFmt.format(stats.size / 1048576) + " MB" : "—";
-  html = html.replace("__COUNT__", () => count).replace("__SIZE__", () => size);
+  html = html.replace("__COUNT__", () => count).replace("__VISITORS__", () => visitors).replace("__SIZE__", () => size);
 
   const style = (/<style>([\s\S]*?)<\/style>/.exec(html) || [])[1] || "";
   const script = (/<script>([\s\S]*?)<\/script>/.exec(html) || [])[1] || "";
@@ -168,6 +187,12 @@ async function handleHome(req, env, ctx, url) {
   const res = new Response(req.method === "HEAD" ? null : html, {
     headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-cache" },
   });
+  // নতুন ভিজিটর (কুকি নেই, বট নয়) হলে একবার গোনা + কুকি বসানো
+  if (req.method === "GET" && !VID_RE.test(req.headers.get("Cookie") || "") && !BOT_RE.test(req.headers.get("User-Agent") || "")) {
+    const vid = crypto.randomUUID();
+    res.headers.append("Set-Cookie", `vid=${vid}; Max-Age=31536000; Path=/; Secure; HttpOnly; SameSite=Lax`);
+    ctx.waitUntil(ipHash(req, env).then((ip) => counter(env).visit(vid, ip)).catch(() => {}));
+  }
   return secure(res, csp);
 }
 
