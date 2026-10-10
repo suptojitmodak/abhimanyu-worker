@@ -7,17 +7,14 @@
 <meta name="description" content="বিশুদ্ধ সিদ্ধান্ত পঞ্জিকা অনুসারে দৈনিক বৈদিক সঙ্গী অ্যাপ।">
 <meta name="theme-color" content="#ffffff">
 <link rel="icon" type="image/png" href="/favicon.png">
-<link rel="preload" href="/hind-bn-400.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="/hind-bn-600.woff2" as="font" type="font/woff2" crossorigin>
-<style>@font-face{font-family:"Hind Siliguri";font-weight:400;font-style:normal;font-display:swap;src:url(/hind-bn-400.woff2) format("woff2")}
-@font-face{font-family:"Hind Siliguri";font-weight:600;font-style:normal;font-display:swap;src:url(/hind-bn-600.woff2) format("woff2")}
-:root{color-scheme:light;--ink:#0f1b2a;--muted:#5f6f82;--brand:#0277bd;--brand-d:#01579b;--tint:#e6f3fb;--line:#e3eaf1;--r:6px}
+<style>@font-face{font-family:"Hind Siliguri";font-weight:400;font-style:normal;font-display:optional;src:url(/hind-bn-400.woff2) format("woff2")}
+@font-face{font-family:"Hind Siliguri";font-weight:600;font-style:normal;font-display:optional;src:url(/hind-bn-600.woff2) format("woff2")}
+:root{color-scheme:light;--maxw:520px;--ink:#0f1b2a;--muted:#5f6f82;--brand:#0277bd;--brand-d:#01579b;--tint:#e6f3fb;--line:#e3eaf1;--r:6px}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:#fff;color:var(--ink);font-family:"Hind Siliguri","Noto Sans Bengali",system-ui,sans-serif;line-height:1.6;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;padding:env(safe-area-inset-top) 0 calc(40px + env(safe-area-inset-bottom))}
-.wrap{max-width:640px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
-.top{border-bottom:1px solid var(--line)}
-.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:12px;padding-bottom:12px}
+.wrap{max-width:var(--maxw);margin:0 auto;padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+.top .wrap{border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:12px;padding-bottom:12px}
 .brand{display:flex;align-items:center;gap:10px}
 .logo{flex:none;width:44px;height:44px}
 h1{margin:0;font-size:20px;line-height:1.25;font-weight:600}
@@ -87,6 +84,6 @@ h1{margin:0;font-size:20px;line-height:1.25;font-weight:600}
     </div>
   </section>
 </main>
-<script>(function(){var c=document.getElementById("count"),s=document.getElementById("size"),b=document.getElementById("dl"),n=new Intl.NumberFormat("bn-BD"),m=new Intl.NumberFormat("bn-BD",{maximumFractionDigits:1});function load(){fetch("/count",{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(d){if(!d)return;if(Number.isSafeInteger(d.count)&&d.count>=0)c.textContent=n.format(d.count);if(Number.isFinite(d.size)&&d.size>0)s.textContent=m.format(d.size/1048576)+" MB"}).catch(function(){})}setInterval(function(){if(!document.hidden)load()},20000);b.addEventListener("click",function(){setTimeout(load,12000)})})();</script>
+<script>(function(){var c=document.getElementById("count"),s=document.getElementById("size"),b=document.getElementById("dl"),n=new Intl.NumberFormat("en-US"),m=new Intl.NumberFormat("en-US",{maximumFractionDigits:1});function load(){fetch("/count",{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(d){if(!d)return;if(Number.isSafeInteger(d.count)&&d.count>=0)c.textContent=n.format(d.count);if(Number.isFinite(d.size)&&d.size>0)s.textContent=m.format(d.size/1048576)+" MB"}).catch(function(){})}if(c.textContent==="\u2014"||s.textContent==="\u2014")load();setInterval(function(){if(!document.hidden)load()},20000);b.addEventListener("click",function(){setTimeout(load,12000)})})();</script>
 </body>
 </html>

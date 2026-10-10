@@ -105,31 +105,46 @@ async function apkSize(env, url) {
   }
 }
 
-async function getStats(env, ctx, url) {
-  const cache = caches.default;
-  const key = new Request(url.origin + "/count");
-  const hit = await cache.match(key);
-  if (hit) return hit.json();
-  const [count, size] = await Promise.all([counter(env).total(), apkSize(env, url)]);
-  const stats = { count, size };
-  ctx.waitUntil(
-    cache.put(key, new Response(JSON.stringify(stats), { headers: { "Content-Type": "application/json", "Cache-Control": "public, max-age=10" } }))
-  );
-  return stats;
-}
+// ইনস্ট্যান্স-মেমোরি ক্যাশ (workers.dev ডোমেইনে Cache API কাজ করে না, তাই এটাই ভরসা)
+const mem = { stats: null, ts: 0, size: null, sizeTs: 0, busyAt: 0 };
+const FRESH_MS = 10000;
+const SIZE_MS = 600000;
 
-async function handleCount(env, ctx, url) {
-  let stats;
+async function refreshStats(env, url) {
   try {
-    stats = await getStats(env, ctx, url);
-  } catch {
-    return new Response('{"error":true}', { status: 503, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
-  }
-  return new Response(JSON.stringify(stats), { headers: { "Content-Type": "application/json", "Cache-Control": "public, max-age=10" } });
+    const count = await counter(env).total();
+    if (!mem.size || Date.now() - mem.sizeTs > SIZE_MS) {
+      const size = await apkSize(env, url);
+      if (size) {
+        mem.size = size;
+        mem.sizeTs = Date.now();
+      }
+    }
+    mem.stats = { count, size: mem.size };
+    mem.ts = Date.now();
+  } catch {}
+  return mem.stats;
 }
 
-const bnInt = new Intl.NumberFormat("bn-BD");
-const bnMb = new Intl.NumberFormat("bn-BD", { maximumFractionDigits: 1 });
+// /count: ১০ সেকেন্ডের বেশি পুরনো হলে নতুন করে আনে
+async function handleCount(env, url) {
+  if (!mem.stats || Date.now() - mem.ts > FRESH_MS) await refreshStats(env, url);
+  if (!mem.stats) return new Response('{"error":true}', { status: 503, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
+  return new Response(JSON.stringify(mem.stats), { headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
+}
+
+// হোম পেজ: কখনো অপেক্ষা করে না। ক্যাশে থাকলে সাথে সাথে দেয়, পুরনো হলে পেছনে নতুন করে আনে
+function peekStats(env, ctx, url) {
+  const stale = !mem.stats || Date.now() - mem.ts > FRESH_MS;
+  if (stale && Date.now() - mem.busyAt > 5000) {
+    mem.busyAt = Date.now();
+    ctx.waitUntil(refreshStats(env, url).finally(() => { mem.busyAt = 0; }));
+  }
+  return mem.stats;
+}
+
+const numFmt = new Intl.NumberFormat("en-US");
+const mbFmt = new Intl.NumberFormat("en-US", { maximumFractionDigits: 1 });
 
 async function sriHash(text) {
   const d = new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text)));
@@ -141,12 +156,9 @@ async function handleHome(req, env, ctx, url) {
   const asset = await env.ASSETS.fetch(new Request(url.origin + "/", { method: "GET" }));
   if (!asset.ok) return secure(asset);
   let html = await asset.text();
-  let stats = null;
-  try {
-    stats = await getStats(env, ctx, url);
-  } catch {}
-  const count = stats ? bnInt.format(stats.count) : "—";
-  const size = stats && stats.size ? bnMb.format(stats.size / 1048576) + " MB" : "—";
+  const stats = peekStats(env, ctx, url);
+  const count = stats ? numFmt.format(stats.count) : "—";
+  const size = stats && stats.size ? mbFmt.format(stats.size / 1048576) + " MB" : "—";
   html = html.replace("__COUNT__", () => count).replace("__SIZE__", () => size);
 
   const style = (/<style>([\s\S]*?)<\/style>/.exec(html) || [])[1] || "";
@@ -172,7 +184,7 @@ export default {
     if (path.includes("..") || path.includes("\\")) return secure(new Response("Bad Request", { status: 400 }));
 
     if (path === "/download") return secure(await handleDownload(req, env, ctx, url));
-    if (path === "/count") return secure(await handleCount(env, ctx, url));
+    if (path === "/count") return secure(await handleCount(env, url));
     if (path.startsWith("/files")) return secure(new Response("Not Found", { status: 404 })); // সরাসরি APK লিংক বন্ধ
     if (path === "/" || path === "/index.html") return handleHome(req, env, ctx, url);
     const r = await env.ASSETS.fetch(req);
