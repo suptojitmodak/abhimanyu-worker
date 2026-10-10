@@ -4,45 +4,52 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>অভিমন্যু – দৈনিক বৈদিক সঙ্গী</title>
-<meta name="description" content="বিশুদ্ধ সিদ্ধান্ত পঞ্জিকা অনুসারে দৈনিক পঞ্জিকা, জপ কাউন্টার, ধ্যান টাইমার ও জীবনাচরণ ট্র্যাকিং। সম্পূর্ণ অফলাইন।">
+<meta name="description" content="বিশুদ্ধ সিদ্ধান্ত পঞ্জিকা অনুসারে দৈনিক বৈদিক সঙ্গী অ্যাপ।">
 <meta name="theme-color" content="#ffffff">
 <link rel="icon" href="/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 <main>
-  <section class="hero">
-    <img class="logo" src="/logo.png" alt="অভিমন্যু অ্যাপের লোগো" width="132" height="132">
+  <header class="hero">
+    <img class="logo" src="/logo.png" alt="অভিমন্যু অ্যাপের লোগো" width="112" height="112">
     <h1>অভিমন্যু</h1>
     <p class="tag">দৈনিক বৈদিক সঙ্গী</p>
-    <p class="sub">বিশুদ্ধ সিদ্ধান্ত পঞ্জিকা অনুসারে আপনার প্রতিদিনের পঞ্জিকা, জপ ও ধ্যান, সবকিছু এক অ্যাপে।</p>
-    <a class="btn" id="dl" href="/download" download rel="nofollow">Android অ্যাপ ডাউনলোড করুন</a>
-    <p class="meta">সাইজ ১৫ MB। ইনস্টলের সময় ফোন “অজানা উৎস” থেকে ইনস্টলের অনুমতি চাইতে পারে।</p>
-    <p class="live" id="live" hidden><strong id="count"></strong> জন ইতিমধ্যে ডাউনলোড করেছেন</p>
-  </section>
+    <p class="sub">সম্পূর্ণ অফলাইন, আপনার সব তথ্য আপনার ফোনেই থাকে।</p>
+    <a class="btn" id="dl" href="/download" download rel="nofollow">ডাউনলোড করুন</a>
+    <p class="meta">Android অ্যাপ, ১৫ MB। ইনস্টলের সময় ফোন “অজানা উৎস” থেকে ইনস্টলের অনুমতি চাইতে পারে।</p>
+  </header>
 
-  <section class="features" aria-label="ফিচার">
-    <div class="f">
-      <span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg></span>
-      <div><h2>দৈনিক পঞ্জিকা</h2><p>বিশুদ্ধ সিদ্ধান্ত পঞ্জিকা অনুসারে প্রতিদিনের তথ্য।</p></div>
+  <section class="cards">
+    <div class="card stat">
+      <p class="label">মোট ডাউনলোড</p>
+      <p class="num" id="count" aria-live="polite">—</p>
     </div>
-    <div class="f">
+    <div class="card f">
+      <span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg></span>
+      <h2>দৈনিক পঞ্জিকা</h2>
+      <p>বিশুদ্ধ সিদ্ধান্ত পঞ্জিকা অনুসারে।</p>
+    </div>
+    <div class="card f">
       <span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.2"/></svg></span>
-      <div><h2>জপ কাউন্টার</h2><p>আপনার জপের সংখ্যা সহজে গুনুন ও সংরক্ষণ করুন।</p></div>
+      <h2>জপ কাউন্টার</h2>
+      <p>জপের সংখ্যা গুনুন ও সংরক্ষণ করুন।</p>
     </div>
-    <div class="f">
+    <div class="card f">
       <span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 3h6"/></svg></span>
-      <div><h2>ধ্যান টাইমার</h2><p>সময় ঠিক করে নিশ্চিন্তে ধ্যানে বসুন।</p></div>
+      <h2>ধ্যান টাইমার</h2>
+      <p>সময় ঠিক করে ধ্যানে বসুন।</p>
     </div>
-    <div class="f">
+    <div class="card f">
       <span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"/></svg></span>
-      <div><h2>জীবনাচরণ ট্র্যাকিং</h2><p>দৈনিক নিয়ম ও অভ্যাসের অগ্রগতি দেখুন।</p></div>
+      <h2>জীবনাচরণ ট্র্যাকিং</h2>
+      <p>দৈনিক নিয়ম ও অভ্যাসের অগ্রগতি দেখুন।</p>
     </div>
   </section>
-
-  <p class="offline">সম্পূর্ণ অফলাইন। অ্যাপ চালাতে ইন্টারনেট লাগে না, আপনার সব তথ্য শুধু আপনার ফোনেই থাকে।</p>
 </main>
-<footer>© অভিমন্যু</footer>
 <script src="/app.js" defer></script>
 </body>
 </html>

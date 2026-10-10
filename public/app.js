@@ -1,13 +1,12 @@
 (function () {
-  var box = document.getElementById("live");
   var out = document.getElementById("count");
   var fmt = new Intl.NumberFormat("bn-BD");
-  var shown = 0;
+  var shown = null;
 
   function show(n) {
-    var from = shown, start = null;
+    var from = shown === null ? 0 : shown, start = null;
     shown = n;
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches || from === n) { out.textContent = fmt.format(n); return; }
+    if (from === n || matchMedia("(prefers-reduced-motion: reduce)").matches) { out.textContent = fmt.format(n); return; }
     function step(t) {
       if (start === null) start = t;
       var p = Math.min((t - start) / 700, 1);
@@ -20,9 +19,7 @@
   function load() {
     fetch("/count", { cache: "no-store" })
       .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (d) {
-        if (d && Number.isSafeInteger(d.count) && d.count > 0) { box.hidden = false; show(d.count); }
-      })
+      .then(function (d) { if (d && Number.isSafeInteger(d.count) && d.count >= 0) show(d.count); })
       .catch(function () {});
   }
 
