@@ -82,6 +82,28 @@ async function handleDownload(req, env, ctx, url) {
   return new Response(req.method === "HEAD" ? null : asset.body, { status: asset.status, headers });
 }
 
+async function apkSize(env, url) {
+  try {
+    const r = await env.ASSETS.fetch(new Request(new URL(APK_PATH, url.origin), { method: "GET" }));
+    if (!r.ok) return null;
+    let len = Number(r.headers.get("content-length"));
+    if (len > 0) {
+      r.body && r.body.cancel().catch(() => {});
+      return len;
+    }
+    len = 0; // content-length না থাকলে বাইট গুনে নিই
+    const reader = r.body.getReader();
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      len += value.length;
+    }
+    return len > 0 ? len : null;
+  } catch {
+    return null;
+  }
+}
+
 async function handleCount(env, ctx, url) {
   const cache = caches.default;
   const key = new Request(url.origin + "/count");
@@ -93,7 +115,7 @@ async function handleCount(env, ctx, url) {
     } catch {
       return new Response('{"error":true}', { status: 503, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
     }
-    res = new Response(JSON.stringify({ count: n }), {
+    res = new Response(JSON.stringify({ count: n, size: await apkSize(env, url) }), {
       headers: { "Content-Type": "application/json", "Cache-Control": "public, max-age=10" },
     });
     ctx.waitUntil(cache.put(key, res.clone()));

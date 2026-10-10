@@ -15,11 +15,11 @@
 <body>
 <header class="top">
   <div class="wrap">
-    <img class="logo" src="/logo.png" alt="অভিমন্যু অ্যাপের লোগো" width="44" height="44">
-    <div>
+    <div class="brand">
+      <img class="logo" src="/logo.png" alt="অভিমন্যু অ্যাপের লোগো" width="44" height="44">
       <h1>অভিমন্যু</h1>
-      <p class="tag">দৈনিক বৈদিক সঙ্গী</p>
     </div>
+    <p class="tag">দৈনিক বৈদিক সঙ্গী</p>
   </div>
 </header>
 
@@ -27,12 +27,13 @@
   <section class="intro">
     <p class="sub">সম্পূর্ণ অফলাইন, আপনার সব তথ্য আপনার ফোনেই থাকে।</p>
     <a class="btn" id="dl" href="/download" download rel="nofollow">ডাউনলোড করুন</a>
-    <p class="meta">Android অ্যাপ, ১৫ MB। ইনস্টলের সময় ফোন “অজানা উৎস” থেকে ইনস্টলের অনুমতি চাইতে পারে।</p>
+    <p class="meta">Android অ্যাপ। ইনস্টলের সময় ফোন “অজানা উৎস” থেকে ইনস্টলের অনুমতি চাইতে পারে।</p>
   </section>
 
-  <div class="card stat">
-    <span class="label">মোট ডাউনলোড</span>
-    <span class="num" id="count" aria-live="polite">—</span>
+  <div class="card info">
+    <div class="row"><span class="label">ভার্সন</span><span class="val">1.0.0</span></div>
+    <div class="row"><span class="label">অ্যাপের সাইজ</span><span class="val" id="size">—</span></div>
+    <div class="row"><span class="label">মোট ডাউনলোড</span><span class="val num" id="count" aria-live="polite">—</span></div>
   </div>
 
   <section class="cards">
