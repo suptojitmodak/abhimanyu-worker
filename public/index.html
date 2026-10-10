@@ -6,17 +6,46 @@
 <title>অভিমন্যু – দৈনিক বৈদিক সঙ্গী</title>
 <meta name="description" content="বিশুদ্ধ সিদ্ধান্ত পঞ্জিকা অনুসারে দৈনিক বৈদিক সঙ্গী অ্যাপ।">
 <meta name="theme-color" content="#ffffff">
-<link rel="icon" href="/logo.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="/style.css">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="preload" href="/hind-bn-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/hind-bn-600.woff2" as="font" type="font/woff2" crossorigin>
+<style>@font-face{font-family:"Hind Siliguri";font-weight:400;font-style:normal;font-display:swap;src:url(/hind-bn-400.woff2) format("woff2")}
+@font-face{font-family:"Hind Siliguri";font-weight:600;font-style:normal;font-display:swap;src:url(/hind-bn-600.woff2) format("woff2")}
+:root{color-scheme:light;--ink:#0f1b2a;--muted:#5f6f82;--brand:#0277bd;--brand-d:#01579b;--tint:#e6f3fb;--line:#e3eaf1;--r:6px}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:#fff;color:var(--ink);font-family:"Hind Siliguri","Noto Sans Bengali",system-ui,sans-serif;line-height:1.6;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;padding:env(safe-area-inset-top) 0 calc(40px + env(safe-area-inset-bottom))}
+.wrap{max-width:640px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+.top{border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:12px;padding-bottom:12px}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{flex:none;width:44px;height:44px}
+h1{margin:0;font-size:20px;line-height:1.25;font-weight:600}
+.tag{margin:0;font-size:14px;line-height:1.3;color:var(--brand);text-align:right}
+.sub{margin:0;padding:22px 0 16px;text-align:center;color:var(--muted)}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r);box-shadow:0 1px 2px rgba(15,27,42,.04)}
+.info{margin-bottom:18px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 16px}
+.row+.row{border-top:1px solid var(--line)}
+.label{font-size:15px;color:var(--muted);white-space:nowrap}
+.val{font-size:16px;font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
+.num{font-size:20px;color:var(--brand)}
+.cta{text-align:center;margin-bottom:22px}
+.btn{display:inline-block;min-height:44px;background:var(--brand);color:#fff;text-decoration:none;font:inherit;font-weight:600;font-size:16px;line-height:26px;padding:9px 28px;border-radius:var(--r)}
+.btn:hover{background:var(--brand-d)}
+.btn:focus-visible{outline:3px solid var(--brand);outline-offset:3px}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.f{padding:14px;overflow-wrap:break-word}
+.ico{display:grid;place-items:center;width:36px;height:36px;border-radius:var(--r);background:var(--tint);color:var(--brand);margin-bottom:10px}
+.ico svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.f h2{margin:0 0 2px;font-size:16px;line-height:1.35;font-weight:600}
+.f p{margin:0;font-size:14px;line-height:1.5;color:var(--muted)}</style>
 </head>
 <body>
 <header class="top">
   <div class="wrap">
     <div class="brand">
-      <img class="logo" src="/logo.png" alt="অভিমন্যু অ্যাপের লোগো" width="44" height="44">
+      <img class="logo" src="/logo-44.webp" srcset="/logo-88.webp 2x, /logo-132.webp 3x" alt="অভিমন্যু অ্যাপের লোগো" width="44" height="44" decoding="async" fetchpriority="high">
       <h1>অভিমন্যু</h1>
     </div>
     <p class="tag">দৈনিক বৈদিক সঙ্গী</p>
@@ -24,17 +53,16 @@
 </header>
 
 <main class="wrap">
-  <section class="intro">
-    <p class="sub">সম্পূর্ণ অফলাইন, আপনার সব তথ্য আপনার ফোনেই থাকে।</p>
-    <a class="btn" id="dl" href="/download" download rel="nofollow">ডাউনলোড করুন</a>
-    <p class="meta">Android অ্যাপ। ইনস্টলের সময় ফোন “অজানা উৎস” থেকে ইনস্টলের অনুমতি চাইতে পারে।</p>
-  </section>
+  <p class="sub">সম্পূর্ণ অফলাইন, আপনার সব তথ্য আপনার ফোনেই থাকে।</p>
 
   <div class="card info">
+    <div class="row"><span class="label">প্ল্যাটফর্ম</span><span class="val">Android অ্যাপ</span></div>
     <div class="row"><span class="label">ভার্সন</span><span class="val">1.0.0</span></div>
-    <div class="row"><span class="label">অ্যাপের সাইজ</span><span class="val" id="size">—</span></div>
-    <div class="row"><span class="label">মোট ডাউনলোড</span><span class="val num" id="count" aria-live="polite">—</span></div>
+    <div class="row"><span class="label">অ্যাপের সাইজ</span><span class="val" id="size">__SIZE__</span></div>
+    <div class="row"><span class="label">মোট ডাউনলোড</span><span class="val num" id="count">__COUNT__</span></div>
   </div>
+
+  <div class="cta"><a class="btn" id="dl" href="/download" download rel="nofollow">ডাউনলোড করুন</a></div>
 
   <section class="cards">
     <div class="card f">
@@ -59,6 +87,6 @@
     </div>
   </section>
 </main>
-<script src="/app.js" defer></script>
+<script>(function(){var c=document.getElementById("count"),s=document.getElementById("size"),b=document.getElementById("dl"),n=new Intl.NumberFormat("bn-BD"),m=new Intl.NumberFormat("bn-BD",{maximumFractionDigits:1});function load(){fetch("/count",{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(d){if(!d)return;if(Number.isSafeInteger(d.count)&&d.count>=0)c.textContent=n.format(d.count);if(Number.isFinite(d.size)&&d.size>0)s.textContent=m.format(d.size/1048576)+" MB"}).catch(function(){})}setInterval(function(){if(!document.hidden)load()},20000);b.addEventListener("click",function(){setTimeout(load,12000)})})();</script>
 </body>
 </html>

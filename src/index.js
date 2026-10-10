@@ -6,9 +6,9 @@ const APK_NAME = "Abhimanyu.apk";
 const MAX_NEW_PER_IP_PER_DAY = 10; // একই আইপি থেকে দিনে সর্বোচ্চ কত নতুন ডাউনলোড গোনা হবে
 const BOT_RE = /bot|crawl|spider|slurp|preview|facebookexternalhit|whatsapp|telegram|curl|wget|python|httpclient/i;
 
+const BASE_CSP = "default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'";
+
 const SECURITY_HEADERS = {
-  "Content-Security-Policy":
-    "default-src 'none'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
   "Strict-Transport-Security": "max-age=31536000",
   "X-Content-Type-Options": "nosniff",
   "Referrer-Policy": "no-referrer",
@@ -47,8 +47,9 @@ async function ipHash(req, env) {
   return [...new Uint8Array(buf)].slice(0, 8).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-function secure(res) {
+function secure(res, csp = BASE_CSP) {
   const out = new Response(res.body, res);
+  out.headers.set("Content-Security-Policy", csp);
   for (const [k, v] of Object.entries(SECURITY_HEADERS)) out.headers.set(k, v);
   return out;
 }
@@ -104,23 +105,58 @@ async function apkSize(env, url) {
   }
 }
 
-async function handleCount(env, ctx, url) {
+async function getStats(env, ctx, url) {
   const cache = caches.default;
   const key = new Request(url.origin + "/count");
-  let res = await cache.match(key);
-  if (!res) {
-    let n;
-    try {
-      n = await counter(env).total();
-    } catch {
-      return new Response('{"error":true}', { status: 503, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
-    }
-    res = new Response(JSON.stringify({ count: n, size: await apkSize(env, url) }), {
-      headers: { "Content-Type": "application/json", "Cache-Control": "public, max-age=10" },
-    });
-    ctx.waitUntil(cache.put(key, res.clone()));
+  const hit = await cache.match(key);
+  if (hit) return hit.json();
+  const [count, size] = await Promise.all([counter(env).total(), apkSize(env, url)]);
+  const stats = { count, size };
+  ctx.waitUntil(
+    cache.put(key, new Response(JSON.stringify(stats), { headers: { "Content-Type": "application/json", "Cache-Control": "public, max-age=10" } }))
+  );
+  return stats;
+}
+
+async function handleCount(env, ctx, url) {
+  let stats;
+  try {
+    stats = await getStats(env, ctx, url);
+  } catch {
+    return new Response('{"error":true}', { status: 503, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
   }
-  return res;
+  return new Response(JSON.stringify(stats), { headers: { "Content-Type": "application/json", "Cache-Control": "public, max-age=10" } });
+}
+
+const bnInt = new Intl.NumberFormat("bn-BD");
+const bnMb = new Intl.NumberFormat("bn-BD", { maximumFractionDigits: 1 });
+
+async function sriHash(text) {
+  const d = new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text)));
+  return "'sha256-" + btoa(String.fromCharCode(...d)) + "'";
+}
+
+// হোম পেজ: সংখ্যা সার্ভারেই বসিয়ে দেই (প্রথম পেইন্টেই আসল ডাটা), CSS/JS ইনলাইন + হ্যাশ-লক করা CSP
+async function handleHome(req, env, ctx, url) {
+  const asset = await env.ASSETS.fetch(new Request(url.origin + "/", { method: "GET" }));
+  if (!asset.ok) return secure(asset);
+  let html = await asset.text();
+  let stats = null;
+  try {
+    stats = await getStats(env, ctx, url);
+  } catch {}
+  const count = stats ? bnInt.format(stats.count) : "—";
+  const size = stats && stats.size ? bnMb.format(stats.size / 1048576) + " MB" : "—";
+  html = html.replace("__COUNT__", () => count).replace("__SIZE__", () => size);
+
+  const style = (/<style>([\s\S]*?)<\/style>/.exec(html) || [])[1] || "";
+  const script = (/<script>([\s\S]*?)<\/script>/.exec(html) || [])[1] || "";
+  const csp =
+    `default-src 'none'; script-src ${await sriHash(script)}; style-src ${await sriHash(style)}; font-src 'self'; img-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`;
+  const res = new Response(req.method === "HEAD" ? null : html, {
+    headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-cache" },
+  });
+  return secure(res, csp);
 }
 
 export default {
@@ -138,6 +174,13 @@ export default {
     if (path === "/download") return secure(await handleDownload(req, env, ctx, url));
     if (path === "/count") return secure(await handleCount(env, ctx, url));
     if (path.startsWith("/files")) return secure(new Response("Not Found", { status: 404 })); // সরাসরি APK লিংক বন্ধ
-    return secure(await env.ASSETS.fetch(req));
+    if (path === "/" || path === "/index.html") return handleHome(req, env, ctx, url);
+    const r = await env.ASSETS.fetch(req);
+    if (r.ok && /\.(woff2|webp|png)$/.test(path)) {
+      const out = new Response(r.body, r);
+      out.headers.set("Cache-Control", "public, max-age=2592000");
+      return secure(out);
+    }
+    return secure(r);
   },
 };
