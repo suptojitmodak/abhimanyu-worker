@@ -1,0 +1,28 @@
+:root{color-scheme:light;--ink:#0f1b2a;--muted:#5f6f82;--brand:#0288d1;--brand-d:#016fb0;--tint:#e8f5fd;--line:#e7edf3}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:#fff;color:var(--ink);font-family:"Noto Sans Bengali","Hind Siliguri","Kalpurush",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.7;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+main{max-width:760px;margin:0 auto;padding:0 22px}
+.hero{text-align:center;padding:64px 0 48px}
+.logo{display:block;margin:0 auto 20px;width:132px;height:132px;animation:in .7s ease-out both}
+h1{font-size:clamp(40px,9vw,60px);line-height:1.15;margin:0;font-weight:700;letter-spacing:-.01em}
+.tag{margin:6px 0 0;font-size:clamp(18px,3.4vw,22px);color:var(--brand);font-weight:600}
+.sub{margin:18px auto 30px;max-width:30em;font-size:18px;color:var(--muted)}
+.btn{display:inline-block;background:linear-gradient(180deg,#0a95e0,#0279c0);color:#fff;text-decoration:none;font-weight:600;font-size:18px;padding:15px 34px;border-radius:999px;box-shadow:0 10px 24px -10px rgba(2,136,209,.7);transition:transform .15s,box-shadow .15s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 14px 28px -10px rgba(2,136,209,.75)}
+.btn:active{transform:none}
+.btn:focus-visible{outline:3px solid var(--brand);outline-offset:3px}
+.meta{margin:14px auto 0;max-width:28em;font-size:14px;color:var(--muted)}
+.live{margin:20px 0 0;font-size:16px;color:var(--muted)}
+.live strong{color:var(--ink);font-size:20px;font-variant-numeric:tabular-nums}
+.features{display:grid;grid-template-columns:1fr 1fr;gap:0 40px;border-top:1px solid var(--line)}
+.f{display:flex;gap:16px;align-items:flex-start;padding:26px 0;border-bottom:1px solid var(--line)}
+.ico{flex:none;width:44px;height:44px;border-radius:50%;background:var(--tint);color:var(--brand);display:grid;place-items:center}
+.ico svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.f h2{margin:0 0 2px;font-size:18px}
+.f p{margin:0;color:var(--muted);font-size:15px}
+.offline{margin:32px auto 0;text-align:center;color:var(--muted);max-width:32em}
+footer{text-align:center;color:#8a98a8;font-size:14px;padding:48px 0 36px}
+@keyframes in{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+@media (max-width:620px){.features{grid-template-columns:1fr}.hero{padding-top:44px}}
+@media (prefers-reduced-motion:reduce){.logo{animation:none}.btn{transition:none}}
